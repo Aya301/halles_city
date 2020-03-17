@@ -2,6 +2,8 @@ import 'dart:core';
 
 import 'package:flutter/cupertino.dart';
 
+// room class is a model for workspace room with its all properies
+//we wil  add methods if needed
 class Room {
   List<ImageProvider> imagesPath;
 
