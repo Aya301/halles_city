@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+
+// this class is a sub class of [Decoration] class
+//which creates a circle indicator for the tab bar
+
 class CircleTabIndicator extends Decoration {
+
   final BoxPainter _painter;
 
   CircleTabIndicator({@required Color color, @required double radius})

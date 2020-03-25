@@ -1,33 +1,46 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:halles_city/UI_componants/circle_tab_indicator.dart';
 import 'package:halles_city/UI_componants/get_netWork_image.dart';
 import 'package:halles_city/UI_componants/hall_properties.dart';
+import 'package:halles_city/models/workspace.dart';
+import 'package:halles_city/screens/room_screen.dart';
 
 import '../constants.dart' as constant;
 
 
 class WorkSpaceScreen extends StatefulWidget {
+
+  WorkSpace workSpace;
+
+  WorkSpaceScreen({this.workSpace});
+
   @override
   _WorkSpaceScreenState createState() => _WorkSpaceScreenState();
 }
 
 class _WorkSpaceScreenState extends State<WorkSpaceScreen>
     with SingleTickerProviderStateMixin {
+
+  // declaring tab control because we will not use [defualTabControler] widget
   TabController _tabController;
+
+  // declaring a scroll view controller to use it for [NestedScrollView]
   ScrollController _scrollViewController;
 
   @override
   void initState() {
     super.initState();
+
+    //initializing the two controllers
     _tabController = TabController(vsync: this, length: 2);
     _scrollViewController = ScrollController(initialScrollOffset: 0.0);
   }
 
   @override
   void dispose() {
+    //dispose the two controllers before disposing the screen
     _tabController.dispose();
     _scrollViewController.dispose();
     super.dispose();
@@ -35,52 +48,56 @@ class _WorkSpaceScreenState extends State<WorkSpaceScreen>
 
   @override
   Widget build(BuildContext context) {
+    // to prevent the app from overriding on notification bar
     return SafeArea(
+      // the largest widget of material app which contains all other widgets
       child: Scaffold(
         backgroundColor: constant.light_gray_color,
         body: NestedScrollView(
           controller: _scrollViewController,
           headerSliverBuilder: (BuildContext context, bool boxIsScrolled) {
             return <Widget>[
+              // creating a sliver app bar to make it scrollable
               SliverAppBar(
-
+                //setting the app bar float means only tab bar will be pinned
                 floating: true,
                 pinned: true,
+                // initializing the height of the app bar
                 expandedHeight: 279,
+                // back button icon
                 leading: IconButton(
                   icon: constant.back_icon,
                   onPressed: () {
+                    //
                     Navigator.pop(context);
                   },
                 ),
+                // adding the workspace images inside carousel
                 flexibleSpace: FlexibleSpaceBar(
                   collapseMode: CollapseMode.pin,
                   background: Padding(
                     padding: const EdgeInsets.only(bottom: 47.0),
-                    child: Column(
-                      children: <Widget>[
-                        CarouselSlider.builder(
-                          viewportFraction: 1.0,
-                          autoPlay: true,
-                          itemCount: 2,
-                          itemBuilder: (BuildContext context, int itemIndex) {
-                            return Image(
-                              image: itemIndex == 0
-                                  ? constant.network_image2
-                                  : constant.network_image3,
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        ),
-                      ],
+                    child: CarouselSlider.builder(
+                      viewportFraction: 1.0,
+                      autoPlay: true,
+                      itemCount: 2,
+                      itemBuilder: (BuildContext context, int itemIndex) {
+                        return Image(
+                          //testig the carousel with more than an image
+                          image: itemIndex == 0
+                              ? constant.network_image2
+                              : constant.network_image1,
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
                   ),
                 ),
-
+                // changing the app bar color to the gray color of the app
                 backgroundColor: constant.light_gray_color,
                 bottom: TabBar(
                   unselectedLabelColor: Colors.blueGrey,
@@ -133,7 +150,7 @@ class _WorkSpaceScreenState extends State<WorkSpaceScreen>
                                     padding: const EdgeInsets.only(
                                         top: 8, left: 8),
                                     child: Text(
-                                      'Work  Space name',
+                                      widget.workSpace.placeName,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold),
@@ -142,7 +159,7 @@ class _WorkSpaceScreenState extends State<WorkSpaceScreen>
                                   Padding(
                                     padding: const EdgeInsets.only(
                                         left: 18, top: 6),
-                                    child: Text('Catigory'),
+                                    child: Text(widget.workSpace.category),
                                   )
                                 ],
                               ),
@@ -155,8 +172,6 @@ class _WorkSpaceScreenState extends State<WorkSpaceScreen>
                                   Icons.location_on,
                                   color: constant.main_dark_color,
                                   size: 42.0,
-                                  semanticLabel:
-                                  'Text to announce in accessibility modes',
                                 ),
                               ),
                             ],
@@ -166,118 +181,93 @@ class _WorkSpaceScreenState extends State<WorkSpaceScreen>
                           padding: const EdgeInsets.all(14),
                           child: Row(
                             children: <Widget>[
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.wifi,
-                                isEnabled: true,
-                              ),
-                              HallProperties.prepertyIcon(
-                                  iconName: Icons.kitchen,
-                                  isEnabled: false
-                              ),
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.local_drink,
-                              ),
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.wc,
-
-                              ), Expanded(
+                              ...widget.workSpace.getPropertyIcons(),
+                              Expanded(
                                 child: Container(),
                               ),
                               Padding(
                                 padding: constant.all_sides_padding,
-                                child: RatingBar(
-                                  itemSize: 22,
-                                  initialRating: 3.5,
-                                  minRating: 1,
-                                  direction: Axis.horizontal,
-                                  allowHalfRating: true,
-                                  itemCount: 5,
-                                  itemPadding: EdgeInsets.symmetric(),
-                                  itemBuilder: (context, _) =>
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                  onRatingUpdate: (rating) {
-                                    print(rating);
-                                  },
+                                child: HallProperties.customRateBar(
+                                    rate: widget.workSpace.rating
                                 ),
                               ),
                             ],
                           ),
                         ),
                         constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                            property: 'Shared Area',
-                            value: 'Available'
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                            property: 'Open Area',
-                            value: 'Not Available'
-                        ),
-                        constant.custom_divider,
+                        ...widget.workSpace.getNamedProperties(),
                       ],
                     ),
                   ),
                 ),
               ),
               GridView.builder(
-                  itemCount: 7,
+                  itemCount: widget.workSpace.rooms.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2
                   ),
                   itemBuilder: (BuildContext context, int index) {
                     return
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: Stack(
-                            alignment: Alignment.bottomLeft,
-                            children: <Widget>[
-                              Column(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: get_network_image(
-                                      image: constant.network_image1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                        begin: Alignment.bottomCenter,
-                                        end: Alignment.topCenter,
-                                        colors: [
-                                          Colors.black,
-                                          Colors.transparent
-                                        ])),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                      GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: Stack(
+                              alignment: Alignment.bottomLeft,
+                              children: <Widget>[
+                                Column(
                                   children: <Widget>[
-                                    Text(
-                                      'Room 1',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 23),
-                                    ),
-                                    Text(
-                                      '30\$/hr',
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 15),
+                                    Expanded(
+                                      child: GetNetworkImage(
+                                        image: widget.workSpace.rooms[index]
+                                            .images[0],
+                                      ),
                                     ),
                                   ],
                                 ),
-                              )
-                            ],
+                                Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [
+                                            Colors.black,
+                                            Colors.transparent
+                                          ])),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        widget.workSpace.rooms[index].placeName,
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 23),
+                                      ),
+                                      Text(
+                                        '${widget.workSpace.rooms[index]
+                                            .namedProperty['Price per hour']}\$/hr',
+                                        style: TextStyle(
+                                            color: Colors.grey, fontSize: 15),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (
+                              context) =>
+                              RoomScreen(
+                                  currentRoom: widget.workSpace.rooms[index]
+                              )));
+                        },
                       );
                   }),
             ],

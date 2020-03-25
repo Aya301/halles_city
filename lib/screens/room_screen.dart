@@ -2,29 +2,15 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:halles_city/UI_componants/hall_properties.dart';
-import 'package:halles_city/models/room.dart';
+import 'package:halles_city/models/workspace_room.dart';
+import 'package:halles_city/screens/reservation_screen.dart';
 
 import '../constants.dart' as constant;
 
 class RoomScreen extends StatefulWidget {
-  // intializing a new room a defualt one
-  Room roomData = Room(
-      hasAirCondition: true,
-      hasBoard: true,
-      hasDataShow: true,
-      hasSoundSystem: true,
-      name: 'Room name',
-      numberOfChairs: 5,
-      numOfTables: 0,
-      pricePerhoure: 50,
-      imagesPath: [
-        constant.network_image1,
-        constant.network_image2,
-        constant.network_image3
-      ]
-  );
+  Room currentRoom;
 
-  RoomScreen();
+  RoomScreen({this.currentRoom });
 
   @override
   _RoomScreenState createState() => _RoomScreenState();
@@ -33,11 +19,11 @@ class RoomScreen extends StatefulWidget {
 class _RoomScreenState extends State<RoomScreen> {
   // these two variable are used to toggle favourite button
   bool isEnabled = false; // this to store the state of the button
-  Color likeColor = Colors.grey; // and this to store buuton color
+  Color likeColor = Colors.grey; // and this to store button color
 
   @override
   Widget build(BuildContext context) {
-    // to prvent myself from overriding on notification bar
+    // to prevent the app from overriding on notification bar
     return SafeArea(
       // the largest widget of material app which contains all other widgets
       child: Scaffold(
@@ -48,13 +34,14 @@ class _RoomScreenState extends State<RoomScreen> {
           backgroundColor: constant.main_light_color,
           // creating back button at leading
           leading: IconButton(
-            // back_icon is aconstant value
+            // back_icon is a constant value
             icon: constant.back_icon,
+            color: constant.main_dark_color,
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          // adding the logo to the flexible space of abb par
+          // adding the logo to the flexible space of app bar
           flexibleSpace: Padding(
             padding: constant.all_sides_padding,
             child: Image(
@@ -62,12 +49,12 @@ class _RoomScreenState extends State<RoomScreen> {
             ),
           ),
         ),
-        // insering all widgets inside a single scroll view to make the scrollable
+        // inserting all widgets inside a single scroll view to make the scrollable
         body: SingleChildScrollView(
-          //all my widgerts will be assigne into a column
+          //all my widgets will be assign into a column
           child: Column(
             children: <Widget>[
-              //adding a constant pading to the image
+              //adding a constant padding to the image
               Padding(
                 padding: constant.three_sides_padding,
                 //making the image border curvy not hard
@@ -77,10 +64,10 @@ class _RoomScreenState extends State<RoomScreen> {
                     child: CarouselSlider.builder(
                       viewportFraction: 1.0,
                       autoPlay: true,
-                      itemCount: widget.roomData.imagesPath.length,
+                      itemCount: widget.currentRoom.images.length,
                       itemBuilder: (BuildContext context, int itemIndex) {
                         return Image(
-                          image: widget.roomData.imagesPath[itemIndex],
+                          image: widget.currentRoom.images[itemIndex],
                           width: MediaQuery
                               .of(context)
                               .size
@@ -92,13 +79,13 @@ class _RoomScreenState extends State<RoomScreen> {
                   ),
                 ),
               ),
-              // adding pading to the hall details box
+              // adding padding to the hall details box
               Padding(
                 padding: constant.three_sides_padding,
-                //maling the box curvey
+                //making the box curvy
                 child: ClipRRect(
                   borderRadius: constant.circularBorder,
-                  //inserting the column od hall preperties to enable me to change background color
+                  //inserting the column od hall properties to enable me to change background color
                   child: Container(
                     color: constant.card_backgrund,
                     child: Column(
@@ -107,29 +94,20 @@ class _RoomScreenState extends State<RoomScreen> {
                           padding: constant.all_sides_padding,
                           // creating a row containing room name and price per hour
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                widget.roomData.name,
+                                widget.currentRoom.placeName,
                                 style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                     color: constant.main_dark_color),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 2, bottom: 1),
-                                child: Text(
-                                  '${widget.roomData.pricePerhoure}\$/hr',
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              )
                             ],
                           ),
                         ),
 
-                        // a divider with a diffrent padding under room name
+                        // a divider with a different padding under room name
                         Padding(
                           padding: const EdgeInsets.only(left: 70, right: 70),
                           child: Divider(
@@ -139,45 +117,7 @@ class _RoomScreenState extends State<RoomScreen> {
 
                         // creating all room properties by func creatHallproperty with its two properties
                         // and a custom divider befor each property
-                        HallProperties.creatHallproperty(
-                          property: 'Number Of chairs',
-                          value: widget.roomData.numberOfChairs.toString(),
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Tables',
-                          value: widget.roomData.numOfTables == 0
-                              ? 'Not Available'
-                              : widget.roomData.numOfTables.toString(),
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                            property: 'Board',
-                            value: widget.roomData.hasBoard
-                                ? 'Avilable'
-                                : 'Not Available'),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Screen/Data Show ',
-                          value: widget.roomData.hasDataShow
-                              ? 'Available'
-                              : 'Not Available',
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Sound System',
-                          value: widget.roomData.hasSoundSystem
-                              ? 'Avialble'
-                              : 'not Available',
-                        ),
-
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Air condition',
-                          value: widget.roomData.hasAirCondition
-                              ? 'Available'
-                              : 'not Available',
-                        ),
+                        ...widget.currentRoom.getNamedProperties(),
                       ],
                     ),
                   ),
@@ -194,11 +134,17 @@ class _RoomScreenState extends State<RoomScreen> {
                     // putting the button into an expanded widget to fill the
                     // residual space inside the row
                     Expanded(
-                      //Calling a static custombutton func with class name(HallProperties)
-                        child: HallProperties.cusomButton(
+                      //Calling a static custom button func with class name(HallProperties)
+                        child: HallProperties.customButton(
                             context: this.context,
-                            //setting the current context whitch we are working in
-                            text: 'Rent Now' //the text of the putton
+                          //setting the current context which we are working in
+                          text: 'Rent Now',
+                          //the text of the button
+                          onclick: () {
+                            Navigator.push(
+                                context, MaterialPageRoute(builder: (context) =>
+                                ReservationScreen())); // routing the
+                          },
                         )
                     ),
                     // a toggle favourite button

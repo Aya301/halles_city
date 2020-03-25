@@ -1,13 +1,19 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:halles_city/UI_componants/hall_properties.dart';
 import 'package:halles_city/constants.dart' as constant;
+import 'package:halles_city/models/hall.dart';
+import 'package:halles_city/screens/reservation_screen.dart';
+
+import 'location_screen(Empty).dart';
 
 class HallScreen extends StatefulWidget {
 
-  // intializing a new room a defualt one
+  Hall hallObj;
 
+  // intializing a new room a defualt one
+  HallScreen({this.hallObj});
 
   @override
   _HallScreenState createState() => _HallScreenState();
@@ -67,7 +73,7 @@ class _HallScreenState extends State<HallScreen> {
                       //make the carousel shows only one image
                       autoPlay: true,
                       // enabling carousel auto play
-                      itemCount: 1,
+                      itemCount: widget.hallObj.images.length,
                       //the number of images inside the caeousel
                       // itembuilder is a builder which builds set of slies with the number of itemcont
                       itemBuilder: (BuildContext context, int itemIndex) {
@@ -121,7 +127,7 @@ class _HallScreenState extends State<HallScreen> {
                                         top: 8, left: 8),
                                     // hall name text widget
                                     child: Text(
-                                      'Hall name',
+                                      widget.hallObj.placeName,
                                       // customizing the properties of the hall name text
                                       style: TextStyle(
                                           fontSize: 16,
@@ -132,7 +138,7 @@ class _HallScreenState extends State<HallScreen> {
                                   Padding(
                                     padding: const EdgeInsets.only(
                                         left: 18, top: 4),
-                                    child: Text('Events'),
+                                    child: Text(widget.hallObj.category),
                                   )
                                 ],
                               ),
@@ -149,8 +155,13 @@ class _HallScreenState extends State<HallScreen> {
                                   icon: Icon(
                                     Icons.location_on,
                                     color: constant.main_dark_color,
-                                    size: 42.0,
+                                      size: 42.0
                                   ),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) =>
+                                            LocationScreen()));
+                                  },
                                 ),
                               ),
                             ],
@@ -161,47 +172,25 @@ class _HallScreenState extends State<HallScreen> {
                         Padding(
                           padding: const EdgeInsets.all(14),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              //creating a custom icom by calling static method from HallProperties class
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.wifi,
-                                // setting icon Name with an icon data object
-                                isEnabled: true, // setting if this property [icon] is available for current hall
-                              ),
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.kitchen,
-                                isEnabled: false,
-                              ),
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.local_drink,
-                              ),
-                              HallProperties.prepertyIcon(
-                                iconName: Icons.wc,
-
+                              // calling a [getPropertyIcons] return a list of property icons which its availability for current hall
+                              // and spreading the list of widgets to its elemnts by three dots
+                              Expanded(
+                                child: Wrap(
+                                  children: <Widget>[
+                                    ...widget.hallObj.getPropertyIcons(),
+                                  ],
+                                ),
                               ),
                               // an  expanded widget to make icons and ratingBar at the sides of the row
-                              Expanded(
-                                child: Container(),
-                              ),
                               // rating bar which showing showing the midi rating of the hall
+                              // calling rate bar from class [HallProprerties] as a static fun
                               Padding(
                                 padding: constant.all_sides_padding,
-                                child: RatingBar(
-                                  itemSize: 22,
-                                  initialRating: 3.5,
-                                  minRating: 1,
-                                  direction: Axis.horizontal,
-                                  allowHalfRating: true,
-                                  itemCount: 5,
-                                  itemPadding: EdgeInsets.symmetric(),
-                                  itemBuilder: (context, _) =>
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                  onRatingUpdate: (rating) {
-                                    print(rating);
-                                  },
+                                child: HallProperties.customRateBar(
+                                    rate: widget.hallObj.rating
                                 ),
                               ),
                             ],
@@ -215,10 +204,10 @@ class _HallScreenState extends State<HallScreen> {
               // adding pading to the hall properties box
               Padding(
                 padding: constant.three_sides_padding,
-                //maling the box curvey
+                //making the box curvy
                 child: ClipRRect(
                   borderRadius: constant.circularBorder,
-                  //inserting the column od hall preperties to enable me to change background color
+                  //inserting the column of hall properties to enable me to change background color
                   child: Container(
                     color: constant.card_backgrund,
                     child: Column(
@@ -235,13 +224,14 @@ class _HallScreenState extends State<HallScreen> {
                                 style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: constant.main_dark_color),
+                                    color: constant.main_dark_color
+                                ),
                               ),
                             ],
                           ),
                         ),
 
-                        // a divider with a diffrent padding under room name
+                        // a divider with a different padding under room name
                         Padding(
                           padding: const EdgeInsets.only(left: 70, right: 70),
                           child: Divider(
@@ -251,51 +241,7 @@ class _HallScreenState extends State<HallScreen> {
 
                         // creating all room properties by func creatHallproperty with its two properties
                         // and a custom divider befor each property
-                        HallProperties.creatHallproperty(
-                          property: 'Price',
-                          value: '500\$/day',
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Number Of chairs',
-                          value: '5',
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Chairs Level',
-                          value: 'amphitheater/OneLevel',
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                            property: 'Tables',
-                            value: 'Not Available'
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                            property: 'Stage',
-                            value: 'Avilable'
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Scenes',
-                          value: 'Not Available',
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Screen/Data Show ',
-                          value: 'Available',
-                        ),
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Sound System',
-                          value: 'Avialble',
-                        ),
-
-                        constant.custom_divider,
-                        HallProperties.creatHallproperty(
-                          property: 'Air condition',
-                          value: 'not Available',
-                        ),
+                        ...widget.hallObj.getNamedProperties(),
                       ],
                     ),
                   ),
@@ -312,10 +258,15 @@ class _HallScreenState extends State<HallScreen> {
                     // residual space inside the row
                     Expanded(
                       //cliping the button edges with a common radius in the app which is circularBorder
-                        child: HallProperties.cusomButton(
+                        child: HallProperties.customButton(
                             context: this.context,
                             //passign this context to the putton
-                            text: 'Rent Now'
+                          text: 'Rent Now',
+                          onclick: () {
+                            Navigator.push(
+                                context, MaterialPageRoute(builder: (context) =>
+                                ReservationScreen())); // routing the
+                          },
                         )
                     ),
                     // a toggle favourite button
