@@ -1,18 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:halles_city/screens/work_space_screen.dart';
+import 'package:halles_city/screens/home_screen(empty).dart';
 
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
+    // This widget is the root of the application.
     return MaterialApp(
+      //removing debug mode bunner
       debugShowCheckedModeBanner: false,
-      home: WorkSpaceScreen(),
+      //calling [HomeScreen] constructor as a home page
+      home: HomeScreen(),
     );
   }
 }
